@@ -9,6 +9,7 @@
 #include<QMessageBox>
 #include<QSqlError>
 #include<QDate>
+#include<QDebug>
 
 namespace Ui {
 class MainWindow;
@@ -21,6 +22,7 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
+    void displayDataInTableView();
 
 private slots:
 

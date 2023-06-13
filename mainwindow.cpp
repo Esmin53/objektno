@@ -1,11 +1,14 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h" 
 
+void displayDataInTableView(QTableView* tableView);
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    QTableView* tableView = ui->tableView;
 
     QDate currentDate = QDate::currentDate();
     int currentMonth = currentDate.month();
@@ -25,6 +28,7 @@ MainWindow::MainWindow(QWidget *parent) :
         ui->label->setText("Failed to open the database!");
     else
         ui->label_db->setText("Conected...");
+    displayDataInTableView();
 
 }
 
@@ -96,13 +100,63 @@ void MainWindow::on_pushButton_dodaj_clicked()
 
 void MainWindow::on_pushButton_update_clicked()
 {
-   QString query = "CREATE TABLE testtable (test varchar(20));";
+    QString serijskiBroj, inventurniBroj, model, lokacija, osoba, rb, psb, tsb;
+    serijskiBroj=ui->lineEdit_sb->text();
+    inventurniBroj=ui->lineEdit_ib->text();
+    model=ui->lineEdit_mp->text();
+    lokacija=ui->lineEdit_l->text();
+    osoba=ui->lineEdit_zo->text();
+    rb=ui->lineEdit_rb->text();
+    psb=ui->lineEdit_psb->text();
+    tsb=ui->lineEdit_tsb->text();
 
-   QSqlQuery qry;
 
-   if(!qry.exec(query)) {
-     QMessageBox::critical(this, tr("error::"), qry.lastError().text());
-   }
+    int mjesec = ui->spinBox_mj->value();
+    int godina = ui->spinBox_god->value();
+    int prethodno = psb.toInt();
+    int trenutno = tsb.toInt();
+    int potrosnja = (trenutno - prethodno);
+    int cijena = (potrosnja * 0.019);
+
+        // Check if a row with the same month and year already exists
+        QSqlQuery query;
+        query.prepare("SELECT * FROM "+serijskiBroj+" WHERE mjesec = :mjesec AND godina = :godina");
+        query.bindValue(":mjesec", mjesec);
+        query.bindValue(":godina", godina);
+        if (query.exec() && query.next()) {
+            // Row with the same month and year already exists, update the row
+            query.prepare("UPDATE "+serijskiBroj+" SET prethodno = :prethodno, trenutno = :trenutno, potrosnja = :potrosnja, cijena = :cijena WHERE mjesec = :mjesec AND godina = :godina");
+            query.bindValue(":prethodno", prethodno);
+            query.bindValue(":trenutno", trenutno);
+            query.bindValue(":potrosnja", potrosnja);
+            query.bindValue(":cijena", cijena);
+            query.bindValue(":mjesec", mjesec);
+            query.bindValue(":godina", godina);
+            if (query.exec()) {
+                qDebug() << "Row updated successfully";
+                // Perform any additional actions after updating the row
+            } else {
+                qDebug() << "Failed to update row:" << query.lastError().text();
+                // Handle the error
+            }
+        } else {
+            // Row with the same month and year doesn't exist, add a new row
+            query.prepare("INSERT INTO "+serijskiBroj+" (godina, mjesec, prethodno, trenutno, potrosnja, cijena) "
+                          "VALUES (:godina, :mjesec, :prethodno, :trenutno, :potrosnja, :cijena)");
+            query.bindValue(":godina", godina);
+            query.bindValue(":mjesec", mjesec);
+            query.bindValue(":prethodno", prethodno);
+            query.bindValue(":trenutno", trenutno);
+            query.bindValue(":potrosnja", potrosnja);
+            query.bindValue(":cijena", cijena);
+            if (query.exec()) {
+                qDebug() << "New row added successfully";
+                // Perform any additional actions after adding the new row
+            } else {
+                qDebug() << "Failed to add new row:" << query.lastError().text();
+                // Handle the error
+            }
+        }
 }
 
 void MainWindow::on_pushButton_obrisi_clicked()
@@ -121,4 +175,13 @@ void MainWindow::on_pushButton_m_clicked()
      }
 
     ui->spinBox_mj->setValue(newValue);
+}
+
+void MainWindow::displayDataInTableView()
+{
+    QSqlQueryModel *model = new QSqlQueryModel(this);
+    model->setQuery("SELECT * FROM Printeri");
+
+    QTableView *tableView = findChild<QTableView*>("tableView");
+    tableView->setModel(model);
 }
