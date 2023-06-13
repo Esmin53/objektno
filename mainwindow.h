@@ -5,6 +5,10 @@
 #include<QtSql>
 #include<QDebug>
 #include<QFileInfo>
+#include<QSqlQuery>
+#include<QMessageBox>
+#include<QSqlError>
+#include<QDate>
 
 namespace Ui {
 class MainWindow;
@@ -17,6 +21,18 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
+
+private slots:
+
+    void on_pushButton_dodaj_clicked();
+
+    void on_pushButton_update_clicked();
+
+    void on_pushButton_obrisi_clicked();
+
+    void on_pushButton_mj_clicked();
+
+    void on_pushButton_m_clicked();
 
 private:
     Ui::MainWindow *ui;
