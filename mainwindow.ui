@@ -244,7 +244,7 @@
      </rect>
     </property>
    </widget>
-   <widget class="QLabel" name="label_11">
+   <widget class="QLabel" name="label_sb">
     <property name="geometry">
      <rect>
       <x>800</x>
@@ -305,8 +305,11 @@
       <height>22</height>
      </rect>
     </property>
+    <property name="minimum">
+     <number>2023</number>
+    </property>
     <property name="maximum">
-     <number>9999</number>
+     <number>2030</number>
     </property>
    </widget>
    <widget class="QLabel" name="label_12">
@@ -351,7 +354,7 @@
      <string>Mjesec</string>
     </property>
    </widget>
-   <widget class="QLabel" name="label_14">
+   <widget class="QLabel" name="label_trenutnadata">
     <property name="geometry">
      <rect>
       <x>836</x>

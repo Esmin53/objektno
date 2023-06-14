@@ -25,7 +25,7 @@ MainWindow::MainWindow(QWidget *parent) :
     mydb.setDatabaseName("C:/Users/MAGARAC/Desktop/ClickChargeET.db");
 
     if(!mydb.open())
-        ui->label->setText("Failed to open the database!");
+        ui->label_db->setText("Failed to open the database!");
     else
         ui->label_db->setText("Conected...");
     displayDataInTableView();
@@ -161,7 +161,22 @@ void MainWindow::on_pushButton_update_clicked()
 
 void MainWindow::on_pushButton_obrisi_clicked()
 {
-   QMessageBox::information(this, tr("Save"), tr("Saved"));
+    // Get the value needed to identify the row to delete
+    QString serijskiBroj = ui->lineEdit_sb->text();
+
+    // Prepare the delete query
+    QSqlQuery query;
+    query.prepare("DELETE FROM Printeri WHERE serijskiBroj = :serijskiBroj");
+    query.bindValue(":serijskiBroj", serijskiBroj);
+
+    // Execute the delete query
+    if (query.exec()) {
+        qDebug() << "Row deleted successfully";
+        // Perform any additional actions after deleting the row
+    } else {
+        qDebug() << "Failed to delete row:" << query.lastError().text();
+        // Handle the error
+    }
 }
 
 void MainWindow::on_pushButton_m_clicked()
@@ -185,3 +200,65 @@ void MainWindow::displayDataInTableView()
     QTableView *tableView = findChild<QTableView*>("tableView");
     tableView->setModel(model);
 }
+
+void MainWindow::on_tableView_activated(const QModelIndex &index)
+{
+    QString val = ui->tableView->model()->data(index).toString();
+        int columnIndex = index.column();
+        QSqlQuery query;
+
+        QString serijskiBroj, inventurniBroj, model, lokacija, osoba, rb, psb, tsb;
+        //int mjesec, godina, prethodno, trenutno, potrosnja, cijena;
+
+        if (columnIndex == 1) {
+            query.prepare("SELECT redniBroj, serijskiBroj, inventurniBroj, model, lokacija, osoba, prethodnoStanjeBrojaca, trenutnoStanjeBrojaca FROM Printeri WHERE serijskiBroj = :val");
+            query.bindValue(":val", val);
+
+            // Execute the query
+            if (query.exec()) {
+                // Check if there is a row of data
+                if (query.next()) {
+                    // Fetch the data from the current row and assign it to the variables
+                    serijskiBroj = query.value("serijskiBroj").toString();
+                    inventurniBroj = query.value("inventurniBroj").toString();
+                    model = query.value("model").toString();
+                    lokacija = query.value("lokacija").toString();
+                    osoba = query.value("osoba").toString();
+                    rb = query.value("redniBroj").toString();
+                    psb = query.value("prethodnoStanjeBrojaca").toString();
+                    tsb = query.value("trenutnoStanjeBrojaca").toString();
+
+                    ui->label_sb->setText(serijskiBroj);
+                    ui->lineEdit_rb->setText(rb);
+                    ui->lineEdit_sb->setText(serijskiBroj);
+                    ui->lineEdit_ib->setText(inventurniBroj);
+                    ui->lineEdit_mp->setText(model);
+                    ui->lineEdit_l->setText(lokacija);
+                    ui->lineEdit_zo->setText(osoba);
+                    ui->lineEdit_psb->setText(psb);
+                    ui->lineEdit_tsb->setText(tsb);
+
+                    //Dio koda za prikaz podataka u drugi tableView
+                    QSqlQueryModel *model = new QSqlQueryModel(this);
+                    model->setQuery("SELECT * FROM " + val);
+
+                    QTableView *tableView = findChild<QTableView*>("tableView_2");
+                    tableView->setModel(model);
+
+
+
+                } else {
+                    // Handle the case when no rows are returned
+                    qDebug() << "No data found";
+                }
+            } else {
+                // Handle the case when the query execution fails
+                qDebug() << "Failed to execute query:" << query.lastError().text();
+            }
+        }
+}
+
+
+
+
+
