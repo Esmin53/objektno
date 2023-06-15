@@ -24,8 +24,10 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->pushButton_update->setDisabled(true);
     ui->pushButton_obrisi->setDisabled(true);
 
+
+    //QString databasePath = QCoreApplication::applicationDirPath() + "/ClickChargeET.db";
     QSqlDatabase mydb = QSqlDatabase::addDatabase("QSQLITE");
-    mydb.setDatabaseName("C:/Users/MAGARAC/Desktop/ClickChargeET.db");
+    mydb.setDatabaseName("C:/Users/MAGARAC/Documents/untitled1/ClickChargeET.db");
 
     if(!mydb.open())
         ui->label_db->setText("Failed to open the database!");
@@ -33,7 +35,8 @@ MainWindow::MainWindow(QWidget *parent) :
         ui->label_db->setText("Conected...");
 
     displayDataInTableView();
-
+    QString currentPath = QDir::currentPath();
+    qDebug() << "Current Path: " << currentPath;
 }
 
 MainWindow::~MainWindow()
@@ -90,6 +93,16 @@ void MainWindow::on_pushButton_dodaj_clicked()
         if (qry.exec(query_2)) {
             if (qry.exec(query_3)) {
                 QMessageBox::information(this, tr("Uspjeh"), tr("Uspješno ste dodali novi printer!"));
+
+                ui->label_sb->setText("");
+                ui->lineEdit_rb->setText("");
+                ui->lineEdit_sb->setText("");
+                ui->lineEdit_ib->setText("");
+                ui->lineEdit_mp->setText("");
+                ui->lineEdit_l->setText("");
+                ui->lineEdit_zo->setText("");
+                ui->lineEdit_psb->setText("");
+                ui->lineEdit_tsb->setText("");
             } else {
                 QMessageBox::critical(this, tr("Error"), qry.lastError().text());
             }
@@ -99,6 +112,7 @@ void MainWindow::on_pushButton_dodaj_clicked()
     } else {
         QMessageBox::critical(this, tr("Error"), qry.lastError().text());
     }
+
 }
 
 void MainWindow::on_pushButton_update_clicked()

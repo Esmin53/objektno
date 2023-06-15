@@ -10,6 +10,7 @@
 #include<QSqlError>
 #include<QDate>
 #include<QDebug>
+#include<QCoreApplication>
 
 namespace Ui {
 class MainWindow;
